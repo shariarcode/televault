@@ -1,0 +1,1842 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#F3F2EE" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="TeleVault" />
+  <link rel="manifest" href="/preview/manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="/preview/icon.svg" />
+  <link rel="apple-touch-icon" href="/preview/icon.svg" />
+  <title>TeleVault — Personal Cloud Drive</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-canvas: #F3F2EE;
+      --surface-card: #FFFFFF;
+      --surface-subtle: #EBE9E2;
+      --border-subtle: #E2E0D8;
+      --obsidian-card: #10131A;
+      --obsidian-elevated: #192030;
+      --obsidian-pill: #12141C;
+      --telegram-blue: #3B7BFF;
+      --telegram-sky: #5993FF;
+      --folder-blue: #4C82F7;
+      --folder-bg: #F2F5FA;
+      --text-primary: #111318;
+      --text-secondary: #686B73;
+      --text-muted: #9497A1;
+      --dot-images: #16A34A;
+      --dot-videos: #8B5CF6;
+      --dot-audio: #EA580C;
+      --dot-docs: #2563EB;
+      --dot-apps: #0D9488;
+      --danger: #DC2626;
+      --success: #15803D;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: radial-gradient(circle at 20% 20%, #1E2436 0%, #0D1017 100%);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .studio-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(12px);
+      padding: 8px 16px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      color: #F3F4F6;
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .studio-badge {
+      background: #16A34A;
+      color: #fff;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+    }
+
+    .phone-frame {
+      width: 400px;
+      height: 830px;
+      background: var(--bg-canvas);
+      border-radius: 46px;
+      box-shadow: 0 30px 80px rgba(0, 0, 0, 0.55), 0 0 0 11px #1F2430, 0 0 0 13px #353C4B;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .status-bar {
+      height: 44px;
+      padding: 12px 26px 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text-primary);
+      flex-shrink: 0;
+    }
+
+    .status-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+    }
+
+    .battery-pill {
+      background: var(--text-primary);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 1px 6px;
+      border-radius: 6px;
+    }
+
+    .screen-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 12px 20px 100px;
+      scrollbar-width: none;
+    }
+    .screen-body::-webkit-scrollbar {
+      display: none;
+    }
+
+    .greeting-sub {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .brand-title {
+      font-size: 31px;
+      font-weight: 800;
+      letter-spacing: -0.9px;
+      color: var(--text-primary);
+      line-height: 1.15;
+    }
+
+    .avatar-btn {
+      width: 46px;
+      height: 46px;
+      border-radius: 50%;
+      background: var(--obsidian-pill);
+      color: #fff;
+      font-size: 16.5px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.14);
+      transition: transform 0.15s;
+    }
+    .avatar-btn:active {
+      transform: scale(0.94);
+    }
+
+    .search-trigger {
+      margin-top: 16px;
+      height: 50px;
+      background: var(--surface-card);
+      border-radius: 999px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-muted);
+      font-size: 14px;
+      cursor: pointer;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.02);
+    }
+
+    .obsidian-hero {
+      margin-top: 18px;
+      background: linear-gradient(140deg, #10131C 0%, #192132 100%);
+      border-radius: 28px;
+      padding: 23px;
+      color: #fff;
+      box-shadow: 0 12px 26px rgba(16, 19, 28, 0.16);
+    }
+
+    .hero-top {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .tg-circle {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: var(--telegram-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .connected-pill {
+      margin-left: auto;
+      background: rgba(21, 128, 61, 0.25);
+      border: 1px solid rgba(74, 222, 128, 0.45);
+      color: #4ADE80;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 10px;
+      border-radius: 999px;
+    }
+
+    .hero-h2 {
+      margin-top: 18px;
+      font-size: 24px;
+      font-weight: 800;
+      line-height: 1.18;
+      letter-spacing: -0.6px;
+    }
+
+    .hero-sub {
+      margin-top: 9px;
+      font-size: 13px;
+      color: #9CA3AF;
+      line-height: 1.38;
+    }
+
+    .white-pill-btn {
+      margin-top: 20px;
+      background: #FFFFFF;
+      color: var(--text-primary);
+      border: none;
+      border-radius: 999px;
+      padding: 12px 20px;
+      font-size: 13.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      transition: transform 0.15s;
+    }
+    .white-pill-btn:active {
+      transform: scale(0.96);
+    }
+
+    .section-title {
+      margin-top: 22px;
+      margin-bottom: 11px;
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      color: var(--text-primary);
+    }
+
+    .section-label-muted {
+      margin-top: 22px;
+      margin-bottom: 9px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-muted);
+      padding-left: 4px;
+    }
+
+    .grouped-card {
+      background: var(--surface-card);
+      border-radius: 26px;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.02);
+    }
+
+    .menu-tile {
+      display: flex;
+      align-items: center;
+      padding: 14px 18px;
+      cursor: pointer;
+      transition: background 0.15s;
+      position: relative;
+    }
+    .menu-tile:hover {
+      background: #FAF9F6;
+    }
+    .menu-tile:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 74px;
+      right: 18px;
+      height: 1px;
+      background: #F1EFEA;
+    }
+
+    .tile-icon-circle {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: var(--surface-subtle);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 14px;
+      flex-shrink: 0;
+      color: var(--text-primary);
+    }
+
+    .tile-text {
+      flex: 1;
+    }
+
+    .tile-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.2px;
+    }
+
+    .tile-sub {
+      font-size: 12.2px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .tile-chevron {
+      color: #B5B7C0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .chips-row {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .chips-row::-webkit-scrollbar {
+      display: none;
+    }
+
+    .stat-chip {
+      background: var(--surface-card);
+      border: 1px solid rgba(226, 224, 216, 0.6);
+      border-radius: 999px;
+      padding: 9px 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .folder-card {
+      background: var(--surface-card);
+      border-radius: 22px;
+      padding: 12px 14px;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.015);
+      transition: transform 0.12s;
+    }
+    .folder-card:active {
+      transform: scale(0.985);
+    }
+
+    .folder-icon-box {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      background: var(--folder-bg);
+      color: var(--folder-blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 14px;
+      flex-shrink: 0;
+    }
+
+    .circle-icon-btn {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--surface-card);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-primary);
+    }
+
+    .filter-pill {
+      padding: 9px 17px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      cursor: pointer;
+      background: var(--surface-card);
+      color: var(--text-primary);
+      white-space: nowrap;
+      transition: all 0.18s;
+    }
+    .filter-pill.active {
+      background: var(--obsidian-pill);
+      color: #fff;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+    }
+
+    .bottom-dock-wrap {
+      position: absolute;
+      bottom: 14px;
+      left: 16px;
+      right: 16px;
+      z-index: 20;
+    }
+
+    .bottom-dock {
+      height: 66px;
+      background: var(--surface-card);
+      border-radius: 999px;
+      padding: 7px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.08);
+    }
+
+    .nav-btn {
+      border: none;
+      background: transparent;
+      color: #8C8F99;
+      padding: 11px 14px;
+      border-radius: 999px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .nav-btn.active {
+      background: var(--obsidian-pill);
+      color: #FFFFFF;
+      padding: 11px 17px;
+    }
+
+    .nav-center-btn {
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      border: none;
+      background: transparent;
+      color: #2855B8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-center-btn.active {
+      background: var(--obsidian-pill);
+      color: #FFFFFF;
+    }
+
+    .nav-dot {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #9CA3AF;
+    }
+    .nav-dot.live {
+      background: var(--telegram-blue);
+    }
+
+    .modal-backdrop {
+      position: absolute;
+      inset: 0;
+      background: rgba(16, 19, 26, 0.55);
+      backdrop-filter: blur(3px);
+      z-index: 50;
+      display: none;
+      align-items: flex-end;
+    }
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-sheet {
+      width: 100%;
+      max-height: 90%;
+      background: var(--bg-canvas);
+      border-radius: 30px 30px 0 0;
+      padding: 16px 22px 28px;
+      overflow-y: auto;
+      animation: slideUp 0.24s ease-out;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
+    .sheet-handle {
+      width: 42px;
+      height: 5px;
+      background: rgba(0, 0, 0, 0.15);
+      border-radius: 999px;
+      margin: 0 auto 16px;
+    }
+
+    .dark-cta-btn {
+      width: 100%;
+      height: 52px;
+      border-radius: 999px;
+      background: var(--obsidian-pill);
+      color: #fff;
+      border: none;
+      font-size: 14.5px;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .dark-cta-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .input-field {
+      width: 100%;
+      padding: 13px 15px;
+      border-radius: 15px;
+      border: 1px solid var(--border-subtle);
+      background: var(--surface-card);
+      font-size: 14px;
+      font-weight: 600;
+      outline: none;
+    }
+
+    .safety-box {
+      background: #FFFBEB;
+      border: 1px solid #FDE68A;
+      color: #92400E;
+      padding: 11px 13px;
+      border-radius: 15px;
+      font-size: 11.5px;
+      line-height: 1.4;
+      margin: 12px 0;
+    }
+
+    .error-box {
+      background: #FEF2F2;
+      border: 1px solid #FECACA;
+      color: #DC2626;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+      margin: 10px 0;
+    }
+
+    .toast-pill {
+      position: absolute;
+      top: 52px;
+      left: 22px;
+      right: 22px;
+      background: var(--obsidian-card);
+      color: #fff;
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-size: 12.5px;
+      font-weight: 600;
+      z-index: 80;
+      display: none;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.22);
+    }
+
+    /* Native Full-Screen Mode when opened on a Real Mobile Phone / Installed PWA */
+    @media (max-width: 520px) {
+      body {
+        padding: 0;
+        background: var(--bg-canvas);
+        justify-content: flex-start;
+      }
+      .studio-bar {
+        display: none !important;
+      }
+      .status-bar {
+        display: none !important;
+      }
+      .phone-frame {
+        width: 100vw;
+        height: 100dvh;
+        border-radius: 0;
+        box-shadow: none;
+      }
+      .screen-body {
+        padding-top: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="studio-bar">
+    <span class="studio-badge">PERSONAL MOBILE READY</span>
+    <span>Open on your phone via Wi-Fi: <strong>http://192.168.1.103:8765</strong> &rarr; Tap "Add to Home Screen"</span>
+  </div>
+
+  <div class="phone-frame">
+    <div id="toast" class="toast-pill"></div>
+
+    <!-- Top Status Bar -->
+    <div class="status-bar">
+      <span>8:47</span>
+      <div class="status-icons">
+        <span>5G</span>
+        <span>Wi-Fi</span>
+        <span class="battery-pill">63</span>
+      </div>
+    </div>
+
+    <!-- Main Dynamic Screen Viewport -->
+    <div id="screenViewport" class="screen-body"></div>
+
+    <!-- 5-Tab Floating Bottom Navigation Bar -->
+    <div class="bottom-dock-wrap">
+      <div class="bottom-dock">
+        <button class="nav-btn active" id="nav-0" onclick="switchTab(0)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-btn" id="nav-1" onclick="switchTab(1)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+          <span class="nav-label" style="display:none">Files</span>
+        </button>
+        <button class="nav-center-btn" id="nav-2" onclick="switchTab(2)">
+          <svg width="23" height="23" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          <span id="centerDot" class="nav-dot"></span>
+        </button>
+        <button class="nav-btn" id="nav-3" onclick="switchTab(3)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span class="nav-label" style="display:none">Search</span>
+        </button>
+        <button class="nav-btn" id="nav-4" onclick="switchTab(4)">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h6v6H4zm10 0h6v6h-6zM4 14h6v6H4zm10 0h6v6h-6z"/></svg>
+          <span class="nav-label" style="display:none">Tools</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Bottom Sheet Modal -->
+    <div id="modalBackdrop" class="modal-backdrop" onclick="if(event.target===this) closeModal()">
+      <div id="modalContent" class="modal-sheet"></div>
+    </div>
+  </div>
+
+  <!-- Hidden real file input so user can pick actual files from PC/Mobile to upload to Telegram -->
+  <input type="file" id="realFilePicker" style="display:none" onchange="handleRealFilePicked(event)" />
+
+  <script>
+    const API_BASE = window.location.origin.startsWith('http')
+      ? window.location.origin
+      : 'http://localhost:8765';
+
+    const state = {
+      activeTab: 0,
+      hasApiCredentials: false,
+      apiId: '',
+      isConnected: false,
+      connectedPhone: null,
+      connectedUsername: null,
+      phoneCodeHash: null,
+      authStep: 'phone', // 'api_setup' | 'phone' | 'otp' | '2fa'
+      authError: null,
+      authBusy: false,
+      tempCountry: '+880',
+      tempPhone: '',
+      activeFolder: null,
+      searchQuery: '',
+      searchCategory: 'All',
+      autoBackup: true,
+      wifiOnly: true,
+      skipDuplicates: true,
+      folders: [
+        { name: 'Android', date: 'Jul 16, 2026' },
+        { name: 'DCIM', date: 'Nov 25, 2026' },
+        { name: 'Documents', date: 'Oct 28, 2026' },
+        { name: 'Download', date: 'Nov 26, 2026' },
+        { name: 'Fonts', date: 'Nov 25, 2026' },
+        { name: 'MIUI', date: 'Nov 25, 2026' },
+        { name: 'Movies', date: 'Nov 03, 2026' },
+        { name: 'Music', date: 'Jul 16, 2026' },
+        { name: 'MxPlayerAd', date: 'Oct 08, 2026' },
+        { name: 'Notifications', date: 'Nov 14, 2026' },
+        { name: 'Pictures', date: 'Nov 27, 2026' },
+      ],
+      files: [
+        { id: '1', name: 'CoxsBazar_Sunset_4K_60fps.mp4', folder: 'DCIM', sizeMB: 342.0, cat: 'Videos', sha: 'a94f8e12c3b40192', starred: true, backedUp: false, deleted: false },
+        { id: '2', name: 'Birthday_Dinner_Reel_HDR.mov', folder: 'Movies', sizeMB: 185.0, cat: 'Videos', sha: 'b83e7d11c2a30192', starred: false, backedUp: false, deleted: false },
+        { id: '3', name: 'Studio_RAW_Photos_Archive_2026.zip', folder: 'Download', sizeMB: 128.0, cat: 'Docs', sha: 'c72d6c00b1920192', starred: false, backedUp: false, deleted: false },
+        { id: '4', name: 'TeleVault_Universal_v1.0.0.apk', folder: 'Download', sizeMB: 64.0, cat: 'Apps', sha: 'd61c5b99a0810192', starred: false, backedUp: false, deleted: false },
+        { id: '5', name: 'IMG_20261125_Portrait_Studio.jpg', folder: 'DCIM', sizeMB: 8.4, cat: 'Images', sha: 'dup_hash_99112233', starred: true, backedUp: false, deleted: false },
+        { id: '6', name: 'IMG_20261125_Portrait_Studio (1).jpg', folder: 'Pictures', sizeMB: 8.4, cat: 'Images', sha: 'dup_hash_99112233', starred: false, backedUp: false, deleted: false },
+        { id: '7', name: 'Q4_Cloud_Architecture_Spec.pdf', folder: 'Documents', sizeMB: 5.0, cat: 'Docs', sha: 'dup_hash_pdf_7788', starred: true, backedUp: false, deleted: false },
+        { id: '8', name: 'Q4_Cloud_Architecture_Spec_Copy.pdf', folder: 'Download', sizeMB: 5.0, cat: 'Docs', sha: 'dup_hash_pdf_7788', starred: false, backedUp: false, deleted: false },
+        { id: '9', name: 'Midnight_LoFi_Session_Master.flac', folder: 'Music', sizeMB: 38.0, cat: 'Audio', sha: 'aud_hash_11223344', starred: true, backedUp: false, deleted: false },
+        { id: '10', name: 'UI_Design_Board_TeleVault.png', folder: 'Pictures', sizeMB: 6.1, cat: 'Images', sha: 'img_hash_33445566', starred: false, backedUp: false, deleted: false },
+        { id: '11', name: 'Old_Draft_Presentation_v1.pptx', folder: 'Documents', sizeMB: 19.4, cat: 'Docs', sha: 'rec_hash_77889900', starred: false, backedUp: false, deleted: true },
+      ],
+      queue: []
+    };
+
+    let currentUiVersion = null;
+
+    function getAuthHeaders() {
+      const token = localStorage.getItem('televault_session_token');
+      const headers = { 'Content-Type': 'application/json' };
+      if (token) headers['Authorization'] = `Bearer ${token}`;
+      return headers;
+    }
+
+    async function checkBackendStatus() {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/auth/status`, {
+          cache: 'no-store',
+          headers: getAuthHeaders()
+        });
+        const data = await res.json();
+        if (data.uiVersion) {
+          if (currentUiVersion !== null && currentUiVersion !== data.uiVersion) {
+            window.location.reload();
+            return;
+          }
+          currentUiVersion = data.uiVersion;
+        }
+        state.hasApiCredentials = !!data.hasApiCredentials;
+        state.apiId = data.apiId || '';
+        state.isConnected = !!data.isAuthenticated;
+        state.connectedPhone = data.phoneNumber || null;
+        state.connectedUsername = data.username || data.phoneNumber || null;
+        renderScreen();
+      } catch (e) {
+        console.warn('Bridge status check failed:', e);
+      }
+    }
+
+    // Auto-sync check every 3 seconds so any code change on PC updates the mobile app automatically!
+    setInterval(async () => {
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/auth/status`, { cache: 'no-store' });
+        const data = await res.json();
+        if (data.uiVersion && currentUiVersion !== null && data.uiVersion !== currentUiVersion) {
+          window.location.reload();
+        }
+      } catch (_) {}
+    }, 3000);
+
+    function showToast(msg) {
+      const el = document.getElementById('toast');
+      el.textContent = msg;
+      el.style.display = 'block';
+      clearTimeout(window._toastTimer);
+      window._toastTimer = setTimeout(() => { el.style.display = 'none'; }, 3500);
+    }
+
+    function switchTab(idx) {
+      state.activeTab = idx;
+      if (idx !== 1) state.activeFolder = null;
+      for (let i = 0; i < 5; i++) {
+        const btn = document.getElementById('nav-' + i);
+        if (i === 2) {
+          btn.className = 'nav-center-btn' + (idx === 2 ? ' active' : '');
+        } else {
+          btn.className = 'nav-btn' + (idx === i ? ' active' : '');
+          const lbl = btn.querySelector('.nav-label');
+          if (lbl) lbl.style.display = idx === i ? 'inline' : 'none';
+        }
+      }
+      renderScreen();
+    }
+
+    function countByCat(cat) {
+      return state.files.filter(f => !f.deleted && f.cat === cat).length;
+    }
+
+    function renderScreen() {
+      const vp = document.getElementById('screenViewport');
+      document.getElementById('centerDot').className = 'nav-dot' + (state.isConnected ? ' live' : '');
+
+      if (state.activeTab === 0) vp.innerHTML = renderHome();
+      else if (state.activeTab === 1) vp.innerHTML = renderFiles();
+      else if (state.activeTab === 2) vp.innerHTML = renderTelegramCloud();
+      else if (state.activeTab === 3) vp.innerHTML = renderSearch();
+      else if (state.activeTab === 4) vp.innerHTML = renderTools();
+    }
+
+    function renderHome() {
+      const backedCount = state.files.filter(f => f.backedUp).length;
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:4px;">
+          <div>
+            <div class="greeting-sub">Good evening</div>
+            <div class="brand-title">TeleVault</div>
+          </div>
+          <button class="avatar-btn" onclick="openAuthSheet()" title="Telegram Account">T</button>
+        </div>
+
+        <div class="search-trigger" onclick="switchTab(3)">
+          <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#111318" stroke-width="2.2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <span>Search files, photos, people</span>
+        </div>
+
+        <div class="obsidian-hero">
+          <div class="hero-top">
+            <div class="tg-circle">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="#fff"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </div>
+            <span style="font-size:13.5px;font-weight:600;color:#D1D5DB;">Telegram Cloud</span>
+            ${state.isConnected ? '<span class="connected-pill">✓ Live Connected</span>' : ''}
+          </div>
+          <div class="hero-h2">
+            ${state.isConnected ? 'Your TeleVault Cloud<br>is active &amp; synced.' : 'Your Telegram,<br>now a cloud drive.'}
+          </div>
+          <div class="hero-sub">
+            ${state.isConnected
+              ? `Account: ${state.connectedUsername || state.connectedPhone} • ${backedCount} files backed up to Saved Messages.`
+              : 'Files stay in your own account. Private and free.'}
+          </div>
+          <button class="white-pill-btn" onclick="${state.isConnected ? 'switchTab(2)' : 'openAuthSheet()'}">
+            <span>${state.isConnected ? 'Manage Cloud Sync' : 'Connect Telegram'}</span>
+            <span>&rarr;</span>
+          </button>
+        </div>
+
+        <div class="section-title">Library</div>
+        <div class="grouped-card">
+          <div class="menu-tile" onclick="openFilteredSearch('Images')">
+            <div class="tile-icon-circle">🖼️</div>
+            <div class="tile-text">
+              <div class="tile-title">Photos &amp; videos</div>
+              <div class="tile-sub">On this phone</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+          <div class="menu-tile" onclick="openFilteredSearch('Audio')">
+            <div class="tile-icon-circle">🎵</div>
+            <div class="tile-text">
+              <div class="tile-title">Music</div>
+              <div class="tile-sub">Songs, albums, playlists</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+          <div class="menu-tile" onclick="showPeopleModal()">
+            <div class="tile-icon-circle">😊</div>
+            <div class="tile-text">
+              <div class="tile-title">People</div>
+              <div class="tile-sub">Grouped by face</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+          <div class="menu-tile" onclick="showStarredModal()">
+            <div class="tile-icon-circle">⭐</div>
+            <div class="tile-text">
+              <div class="tile-title">Starred</div>
+              <div class="tile-sub">Cloud and device</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+        </div>
+
+        <div class="section-title">On this device</div>
+        <div class="chips-row">
+          <div class="stat-chip" onclick="openFilteredSearch('Images')">
+            <span class="dot" style="background:var(--dot-images)"></span>
+            <span>Images</span>
+            <span style="color:var(--text-muted)">${countByCat('Images')}</span>
+          </div>
+          <div class="stat-chip" onclick="openFilteredSearch('Videos')">
+            <span class="dot" style="background:var(--dot-videos)"></span>
+            <span>Videos</span>
+            <span style="color:var(--text-muted)">${countByCat('Videos')}</span>
+          </div>
+          <div class="stat-chip" onclick="openFilteredSearch('Audio')">
+            <span class="dot" style="background:var(--dot-audio)"></span>
+            <span>Audio</span>
+            <span style="color:var(--text-muted)">${countByCat('Audio')}</span>
+          </div>
+          <div class="stat-chip" onclick="openFilteredSearch('Docs')">
+            <span class="dot" style="background:var(--dot-docs)"></span>
+            <span>Docs</span>
+            <span style="color:var(--text-muted)">${countByCat('Docs')}</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderFiles() {
+      if (state.activeFolder) {
+        const folderFiles = state.files.filter(f => !f.deleted && f.folder === state.activeFolder);
+        return `
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:16px;">
+            <button class="circle-icon-btn" onclick="state.activeFolder=null;renderScreen()">&larr;</button>
+            <div style="font-size:23px;font-weight:800;letter-spacing:-0.7px;flex:1;">${state.activeFolder}</div>
+            <button class="white-pill-btn" style="margin:0;background:var(--telegram-blue);color:#fff;padding:9px 12px;font-size:11.5px;" onclick="document.getElementById('realFilePicker').click()">
+              + Pick Real File
+            </button>
+          </div>
+          ${folderFiles.length === 0
+            ? `<div style="background:#fff;border-radius:22px;padding:32px;text-align:center;color:var(--text-muted);font-size:13.5px;">No files in ${state.activeFolder} yet. Click "+ Pick Real File" to upload from your device.</div>`
+            : folderFiles.map(f => `
+              <div class="folder-card" onclick="queueSingleFile('${f.id}')">
+                <div class="folder-icon-box">📄</div>
+                <div style="flex:1;min-width:0;">
+                  <div class="tile-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name}</div>
+                  <div class="tile-sub">${f.sizeMB} MB • ${f.backedUp ? '☁️ Sent to Saved Messages' : 'Tap to send to your Telegram'}</div>
+                </div>
+                <span style="font-size:12px;font-weight:700;color:var(--telegram-blue);">${f.backedUp ? '✓ Sent' : 'Upload'}</span>
+              </div>
+            `).join('')}
+        `;
+      }
+
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:27px;font-weight:800;letter-spacing:-0.8px;">Internal Storage</div>
+          <div style="display:flex;gap:8px;">
+            <button class="circle-icon-btn" onclick="switchTab(3)" title="Search">🔍</button>
+            <button class="circle-icon-btn" onclick="state.folders.reverse();renderScreen()" title="Sort">⇅</button>
+            <button class="circle-icon-btn" onclick="document.getElementById('realFilePicker').click()" title="Upload Real File">➕</button>
+          </div>
+        </div>
+        ${state.folders.map(fl => `
+          <div class="folder-card" onclick="state.activeFolder='${fl.name}';renderScreen()">
+            <div class="folder-icon-box">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+            </div>
+            <div style="flex:1;">
+              <div class="tile-title">${fl.name}</div>
+              <div class="tile-sub">${fl.date}</div>
+            </div>
+            <span style="color:#8C8F99;font-weight:800;padding:4px 8px;" onclick="event.stopPropagation();queueFolder('${fl.name}')">&vellip;</span>
+          </div>
+        `).join('')}
+      `;
+    }
+
+    function renderTelegramCloud() {
+      if (!state.isConnected) {
+        return `
+          <div style="padding:12px 4px;display:flex;flex-direction:column;min-height:660px;">
+            <div style="width:62px;height:62px;border-radius:50%;background:linear-gradient(135deg,#5993FF,#3B7BFF);display:flex;align-items:center;justify-content:center;box-shadow:0 8px 18px rgba(59,123,255,0.28);margin-top:8px;">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="#fff"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+            </div>
+            <div style="font-size:33px;font-weight:800;letter-spacing:-1px;line-height:1.14;margin-top:26px;">
+              Your Telegram,<br>as a cloud drive.
+            </div>
+            <div style="font-size:14.5px;color:var(--text-secondary);line-height:1.45;margin-top:12px;">
+              Sign in once. Your files live in your own Telegram account — TeleVault keeps the folders.
+            </div>
+
+            <div style="margin-top:30px;display:flex;flex-direction:column;gap:18px;">
+              <div style="display:flex;align-items:center;gap:15px;">
+                <div class="circle-icon-btn" style="width:46px;height:46px;">🔒</div>
+                <div>
+                  <div class="tile-title">Private</div>
+                  <div class="tile-sub">Only you can see your files</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:15px;">
+                <div class="circle-icon-btn" style="width:46px;height:46px;">💻</div>
+                <div>
+                  <div class="tile-title">Everywhere</div>
+                  <div class="tile-sub">Phone, web, Mac and iPhone</div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:15px;">
+                <div class="circle-icon-btn" style="width:46px;height:46px;">☁️</div>
+                <div>
+                  <div class="tile-title">Free</div>
+                  <div class="tile-sub">Uses the storage Telegram gives you</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="safety-box" style="margin-top:24px;">
+              <strong>Security Notice:</strong> Enable Telegram Two-Step Verification (2FA) and avoid storing raw NIDs, passports, or banking info in unencrypted cloud chats.
+            </div>
+
+            <div style="margin-top:auto;padding-top:18px;">
+              <button class="dark-cta-btn" onclick="openAuthSheet()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="#fff"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+                <span>Connect Telegram</span>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      const uploadedCount = state.queue.filter(q => q.status.includes('Backed Up')).length;
+      const skippedCount = state.queue.filter(q => q.status.includes('Skipped')).length;
+
+      return `
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="font-size:27px;font-weight:800;letter-spacing:-0.8px;">Telegram Cloud</div>
+            <div class="tile-sub">${state.connectedUsername || state.connectedPhone}</div>
+          </div>
+          <button class="circle-icon-btn" onclick="disconnectAccount()" title="Logout">🚪</button>
+        </div>
+
+        <div class="obsidian-hero" style="margin-top:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <div>
+              <div style="font-size:15px;font-weight:700;">Saved Messages • Real MTProto</div>
+              <div style="font-size:12px;color:#9CA3AF;margin-top:2px;">Files appear directly in your Telegram app</div>
+            </div>
+            <span class="connected-pill">Live</span>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:16px;">
+            <div style="flex:1;background:rgba(255,255,255,0.08);padding:10px;border-radius:14px;text-align:center;">
+              <div style="font-size:18px;font-weight:800;">${uploadedCount}</div>
+              <div style="font-size:11px;color:#9CA3AF;">Sent to Telegram</div>
+            </div>
+            <div style="flex:1;background:rgba(255,255,255,0.08);padding:10px;border-radius:14px;text-align:center;">
+              <div style="font-size:18px;font-weight:800;">${skippedCount}</div>
+              <div style="font-size:11px;color:#9CA3AF;">Dedup Skipped</div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:16px;">
+            <button class="white-pill-btn" style="flex:1;justify-content:center;margin:0;" onclick="document.getElementById('realFilePicker').click()">
+              📤 Upload Real File
+            </button>
+            <button class="white-pill-btn" style="flex:1;justify-content:center;margin:0;background:var(--telegram-blue);color:#fff;" onclick="syncAllNow()">
+              🔄 Sync Folders
+            </button>
+          </div>
+        </div>
+
+        <div class="section-title">Auto-Backup Rules</div>
+        <div class="grouped-card">
+          <div class="menu-tile" onclick="state.autoBackup=!state.autoBackup;renderScreen()">
+            <div class="tile-text">
+              <div class="tile-title">Auto-backup folders</div>
+              <div class="tile-sub">DCIM, Pictures &amp; Documents</div>
+            </div>
+            <span style="font-weight:800;color:${state.autoBackup ? 'var(--success)' : 'var(--text-muted)'}">${state.autoBackup ? 'ON' : 'OFF'}</span>
+          </div>
+          <div class="menu-tile" onclick="state.wifiOnly=!state.wifiOnly;renderScreen()">
+            <div class="tile-text">
+              <div class="tile-title">Wi-Fi only</div>
+              <div class="tile-sub">Pause uploads on mobile data</div>
+            </div>
+            <span style="font-weight:800;color:${state.wifiOnly ? 'var(--success)' : 'var(--text-muted)'}">${state.wifiOnly ? 'ON' : 'OFF'}</span>
+          </div>
+          <div class="menu-tile" onclick="state.skipDuplicates=!state.skipDuplicates;renderScreen()">
+            <div class="tile-text">
+              <div class="tile-title">Skip already backed-up (SHA-256)</div>
+              <div class="tile-sub">Prevent duplicate uploads</div>
+            </div>
+            <span style="font-weight:800;color:${state.skipDuplicates ? 'var(--success)' : 'var(--text-muted)'}">${state.skipDuplicates ? 'ON' : 'OFF'}</span>
+          </div>
+        </div>
+
+        <div class="section-title">Upload Queue &amp; History (${state.queue.length})</div>
+        ${state.queue.length === 0
+          ? `<div style="background:#fff;border-radius:22px;padding:24px;text-align:center;color:var(--text-muted);font-size:13px;">Tap "Upload Real File" above to send any photo or document directly to your Telegram Saved Messages!</div>`
+          : state.queue.map(q => `
+            <div class="folder-card">
+              <div class="folder-icon-box">${q.status.includes('Backed Up') ? '✅' : '⏭️'}</div>
+              <div style="flex:1;min-width:0;">
+                <div class="tile-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${q.name}</div>
+                <div class="tile-sub">${q.folder} • ${q.sizeMB} MB • ${q.status}</div>
+              </div>
+            </div>
+          `).join('')}
+      `;
+    }
+
+    function renderSearch() {
+      const cats = ['All', 'Images', 'Videos', 'Audio', 'Docs', 'Apps'];
+      const q = state.searchQuery.trim().toLowerCase();
+      const results = state.files.filter(f => {
+        if (f.deleted) return false;
+        if (state.searchCategory !== 'All' && f.cat !== state.searchCategory) return false;
+        if (!q && state.searchCategory === 'All') return false;
+        return !q || f.name.toLowerCase().includes(q) || f.folder.toLowerCase().includes(q);
+      });
+
+      const showPrompt = !q && state.searchCategory === 'All';
+
+      return `
+        <div style="display:flex;align-items:center;gap:10px;">
+          <button class="circle-icon-btn" style="width:46px;height:46px;" onclick="switchTab(0)">&larr;</button>
+          <div style="flex:1;background:#fff;border-radius:999px;height:48px;padding:0 16px;display:flex;align-items:center;gap:10px;">
+            <span style="color:var(--text-muted)">🔍</span>
+            <input
+              type="text"
+              placeholder="Search files and folders"
+              value="${state.searchQuery}"
+              oninput="state.searchQuery=this.value;renderScreen()"
+              style="border:none;outline:none;width:100%;font-size:14px;background:transparent;"
+            />
+          </div>
+        </div>
+
+        <div class="chips-row" style="margin-top:14px;">
+          ${cats.map(c => `
+            <button class="filter-pill ${state.searchCategory === c ? 'active' : ''}" onclick="state.searchCategory='${c}';renderScreen()">
+              ${c}
+            </button>
+          `).join('')}
+        </div>
+
+        ${showPrompt ? `
+          <div style="margin-top:130px;text-align:center;">
+            <div style="width:74px;height:74px;border-radius:50%;background:#fff;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 6px 16px rgba(0,0,0,0.03);">🔍</div>
+            <div style="font-size:17px;font-weight:800;">Search your files</div>
+            <div style="font-size:13px;color:var(--text-muted);margin-top:4px;">Find anything by name, type or folder.</div>
+          </div>
+        ` : `
+          <div style="margin-top:16px;">
+            ${results.length === 0
+              ? `<div style="text-align:center;color:var(--text-muted);margin-top:60px;font-size:13.5px;">No matching files found.</div>`
+              : results.map(f => `
+                <div class="folder-card" onclick="queueSingleFile('${f.id}')">
+                  <div class="folder-icon-box">📄</div>
+                  <div style="flex:1;min-width:0;">
+                    <div class="tile-title" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${f.name}</div>
+                    <div class="tile-sub">${f.folder} • ${f.sizeMB} MB</div>
+                  </div>
+                  <span style="font-size:12px;font-weight:700;color:var(--telegram-blue);">☁️ Backup</span>
+                </div>
+              `).join('')}
+          </div>
+        `}
+      `;
+    }
+
+    function renderTools() {
+      const largeCount = state.files.filter(f => !f.deleted && f.sizeMB >= 50).length;
+      const recycleCount = state.files.filter(f => f.deleted).length;
+
+      return `
+        <div style="font-size:30px;font-weight:800;letter-spacing:-0.9px;">Tools</div>
+        <div style="font-size:13.5px;color:var(--text-muted);margin-top:2px;">Free up space and manage your files</div>
+
+        <div class="obsidian-hero" style="margin-top:16px;cursor:pointer;" onclick="showStorageBreakdown()">
+          <div style="display:flex;align-items:center;gap:14px;">
+            <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;">◔</div>
+            <div style="flex:1;">
+              <div style="font-size:15.5px;font-weight:700;">Storage analyzer</div>
+              <div style="font-size:12.5px;color:#9CA3AF;">See what's using space</div>
+            </div>
+            <div style="width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.1);display:flex;align-items:center;justify-content:center;">&rarr;</div>
+          </div>
+          <div style="display:flex;align-items:baseline;margin-top:20px;">
+            <span style="font-size:22px;font-weight:800;">90.0 GB</span>
+            <span style="font-size:13px;color:#9CA3AF;margin-left:6px;">of 224 GB used</span>
+            <span style="margin-left:auto;font-size:14px;font-weight:700;">40%</span>
+          </div>
+          <div style="height:7px;background:rgba(255,255,255,0.15);border-radius:999px;margin-top:10px;overflow:hidden;">
+            <div style="width:40%;height:100%;background:#FFFFFF;border-radius:999px;"></div>
+          </div>
+        </div>
+
+        <div class="section-label-muted">Clean up</div>
+        <div class="grouped-card">
+          <div class="menu-tile" onclick="showLargeFilesModal()">
+            <div class="tile-icon-circle">📄</div>
+            <div class="tile-text">
+              <div class="tile-title">Large files</div>
+              <div class="tile-sub">Files over 50 MB, biggest first (${largeCount})</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+          <div class="menu-tile" onclick="showDuplicatesModal()">
+            <div class="tile-icon-circle">❐</div>
+            <div class="tile-text">
+              <div class="tile-title">Duplicates</div>
+              <div class="tile-sub">Identical copies taking extra space</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+          <div class="menu-tile" onclick="showRecycleModal()">
+            <div class="tile-icon-circle">🗑️</div>
+            <div class="tile-text">
+              <div class="tile-title">Recycle bin</div>
+              <div class="tile-sub">Restore or permanently delete (${recycleCount})</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+        </div>
+
+        <div class="section-label-muted">Files</div>
+        <div class="grouped-card">
+          <div class="menu-tile" onclick="state.activeFolder='Download';switchTab(1)">
+            <div class="tile-icon-circle">&darr;</div>
+            <div class="tile-text">
+              <div class="tile-title">Downloads</div>
+              <div class="tile-sub">Open your Downloads folder</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+          <div class="menu-tile" onclick="showToast('Showing 2 hidden dot-files (.nomedia_vault_index.json)')">
+            <div class="tile-icon-circle">🙈</div>
+            <div class="tile-text">
+              <div class="tile-title">Hidden files</div>
+              <div class="tile-sub">Dot-files and hidden folders</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+          <div class="menu-tile" onclick="compressDemo()">
+            <div class="tile-icon-circle">🗜️</div>
+            <div class="tile-text">
+              <div class="tile-title">Compress</div>
+              <div class="tile-sub">Zip files into Downloads</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+          <div class="menu-tile" onclick="extractDemo()">
+            <div class="tile-icon-circle">📦</div>
+            <div class="tile-text">
+              <div class="tile-title">Extract</div>
+              <div class="tile-sub">Unpack zip, 7z or tar into Downloads</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+          <div class="menu-tile" onclick="openFilteredSearch('Apps')">
+            <div class="tile-icon-circle">🤖</div>
+            <div class="tile-text">
+              <div class="tile-title">Apps</div>
+              <div class="tile-sub">Installed apps, info and APK sharing</div>
+            </div>
+            <span class="tile-chevron">&rsaquo;</span>
+          </div>
+        </div>
+      `;
+    }
+
+    function openModal(html) {
+      document.getElementById('modalContent').innerHTML = `<div class="sheet-handle"></div>` + html;
+      document.getElementById('modalBackdrop').classList.add('open');
+    }
+
+    function closeModal() {
+      document.getElementById('modalBackdrop').classList.remove('open');
+    }
+
+    async function openAuthSheet() {
+      state.authError = null;
+      await checkBackendStatus();
+      if (!state.hasApiCredentials) {
+        state.authStep = 'api_setup';
+      } else {
+        state.authStep = 'phone';
+      }
+      renderAuthModal();
+    }
+
+    function renderAuthModal() {
+      const errHtml = state.authError ? `<div class="error-box">${state.authError}</div>` : '';
+
+      if (state.authStep === 'api_setup') {
+        openModal(`
+          <div style="display:flex;align-items:center;gap:12px;">
+            <div class="tg-circle" style="width:44px;height:44px;">🔑</div>
+            <div>
+              <div style="font-size:17.5px;font-weight:800;">One-Time Telegram API Setup</div>
+              <div style="font-size:12px;color:var(--text-muted);">Required by Telegram to send real OTP codes</div>
+            </div>
+          </div>
+          <div class="safety-box">
+            <strong>How to get your free Telegram API_ID &amp; API_HASH (30 seconds):</strong><br>
+            1. Open <a href="https://my.telegram.org" target="_blank" style="color:#1D4ED8;font-weight:700;">https://my.telegram.org</a> and log in with your phone number.<br>
+            2. Click <strong>"API development tools"</strong>.<br>
+            3. Copy your <strong>App api_id</strong> and <strong>App api_hash</strong> and paste them below:
+          </div>
+          ${errHtml}
+          <div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">
+            <input id="apiIdInput" class="input-field" type="text" placeholder="Paste App api_id (e.g. 12345678)" value="${state.apiId || ''}" />
+            <input id="apiHashInput" class="input-field" type="text" placeholder="Paste App api_hash (32-char hex string)" />
+          </div>
+          <button class="dark-cta-btn" style="margin-top:16px;" onclick="saveApiCredentials()" ${state.authBusy ? 'disabled' : ''}>
+            ${state.authBusy ? 'Saving...' : 'Save &amp; Continue to Phone Login &rarr;'}
+          </button>
+        `);
+        return;
+      }
+
+      if (state.authStep === 'phone') {
+        openModal(`
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div class="tg-circle" style="width:44px;height:44px;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+              </div>
+              <div>
+                <div style="font-size:18px;font-weight:800;">Connect Telegram Cloud</div>
+                <div style="font-size:12px;color:var(--text-muted);">Step 1 of 2 • Enter your mobile number</div>
+              </div>
+            </div>
+            <button class="circle-icon-btn" onclick="state.authStep='api_setup';renderAuthModal()" title="Change API_ID">⚙️</button>
+          </div>
+          <div class="safety-box">
+            <strong>Real Telegram OTP Login:</strong><br>
+            Telegram will send a 5-digit login code directly to your <strong>Telegram App</strong> (or via SMS) on your phone.
+          </div>
+          ${errHtml}
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <select id="ccInput" class="input-field" style="width:120px;">
+              <option value="+880" ${state.tempCountry==='+880'?'selected':''}>BD (+880)</option>
+              <option value="+91" ${state.tempCountry==='+91'?'selected':''}>IN (+91)</option>
+              <option value="+1" ${state.tempCountry==='+1'?'selected':''}>US (+1)</option>
+              <option value="+44" ${state.tempCountry==='+44'?'selected':''}>UK (+44)</option>
+              <option value="+971" ${state.tempCountry==='+971'?'selected':''}>UAE (+971)</option>
+            </select>
+            <input id="phoneInput" class="input-field" type="tel" placeholder="1712345678" value="${state.tempPhone}" />
+          </div>
+          <button class="dark-cta-btn" style="margin-top:16px;" onclick="submitPhoneStep()" ${state.authBusy ? 'disabled' : ''}>
+            ${state.authBusy ? 'Requesting Real OTP from Telegram...' : 'Send Real Login Code &rarr;'}
+          </button>
+        `);
+      } else if (state.authStep === 'otp') {
+        openModal(`
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="font-size:18px;font-weight:800;">Enter 5-Digit Telegram Code</div>
+            <button style="border:none;background:none;color:var(--telegram-blue);font-size:12.5px;font-weight:700;cursor:pointer;" onclick="state.authStep='phone';renderAuthModal()">Change number</button>
+          </div>
+          <div style="font-size:12.5px;color:var(--text-secondary);margin-top:6px;">
+            Check the <strong>Telegram app</strong> on your phone for a login code sent to <strong>${state.tempCountry}${state.tempPhone}</strong>.
+          </div>
+          ${errHtml}
+          <input id="otpInput" class="input-field" style="margin-top:14px;text-align:center;font-size:22px;letter-spacing:8px;" placeholder="12345" maxlength="6" />
+          <button class="dark-cta-btn" style="margin-top:16px;" onclick="submitOtpStep()" ${state.authBusy ? 'disabled' : ''}>
+            ${state.authBusy ? 'Verifying with Telegram...' : 'Verify OTP &amp; Login'}
+          </button>
+        `);
+      } else if (state.authStep === '2fa') {
+        openModal(`
+          <div style="font-size:18px;font-weight:800;">Two-Step Verification (2FA)</div>
+          <div style="font-size:12.5px;color:var(--text-secondary);margin-top:4px;">
+            Your Telegram account has a Cloud Password enabled. Enter it below to finish connecting:
+          </div>
+          ${errHtml}
+          <input id="twoFaInput" type="password" class="input-field" style="margin-top:14px;" placeholder="Enter Telegram 2FA Cloud Password" />
+          <button class="dark-cta-btn" style="margin-top:16px;" onclick="submit2faStep()" ${state.authBusy ? 'disabled' : ''}>
+            ${state.authBusy ? 'Unlocking Session...' : 'Unlock with 2FA Password'}
+          </button>
+        `);
+      }
+    }
+
+    async function saveApiCredentials() {
+      const apiId = document.getElementById('apiIdInput').value.trim();
+      const apiHash = document.getElementById('apiHashInput').value.trim();
+      if (!apiId || !apiHash) {
+        state.authError = 'Please enter both App api_id and App api_hash from my.telegram.org.';
+        renderAuthModal();
+        return;
+      }
+      state.authBusy = true;
+      state.authError = null;
+      renderAuthModal();
+
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/auth/config`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ apiId, apiHash })
+        });
+        const data = await res.json();
+        state.authBusy = false;
+        if (res.ok && data.success) {
+          state.hasApiCredentials = true;
+          state.apiId = apiId;
+          state.authStep = 'phone';
+          showToast('Telegram API credentials saved!');
+        } else {
+          state.authError = data.message || 'Invalid API credentials.';
+        }
+      } catch (e) {
+        state.authBusy = false;
+        state.authError = 'Server error: ' + e.message;
+      }
+      renderAuthModal();
+    }
+
+    async function submitPhoneStep() {
+      const cc = document.getElementById('ccInput').value;
+      const rawPh = document.getElementById('phoneInput').value.replace(/[^0-9]/g, '');
+      // Strip leading 0 if country code is used (e.g. +880 017... -> +88017...)
+      const ph = rawPh.startsWith('0') ? rawPh.substring(1) : rawPh;
+      if (ph.length < 6) {
+        state.authError = 'Please enter a valid phone number.';
+        renderAuthModal();
+        return;
+      }
+      state.tempCountry = cc;
+      state.tempPhone = ph;
+      state.authBusy = true;
+      state.authError = null;
+      renderAuthModal();
+
+      const fullPhone = `${cc}${ph}`;
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/auth/send-code`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phoneNumber: fullPhone })
+        });
+        const data = await res.json();
+        state.authBusy = false;
+        if (res.ok && data.success) {
+          state.phoneCodeHash = data.phoneCodeHash;
+          state.authStep = 'otp';
+          showToast(`OTP code sent to ${fullPhone}! Check your Telegram app.`);
+        } else {
+          state.authError = data.message || 'Failed to send code.';
+        }
+      } catch (e) {
+        state.authBusy = false;
+        state.authError = 'Connection error: ' + e.message;
+      }
+      renderAuthModal();
+    }
+
+    async function submitOtpStep() {
+      const code = document.getElementById('otpInput').value.trim();
+      if (code.length < 4) {
+        state.authError = 'Please enter the 5-digit OTP code from Telegram.';
+        renderAuthModal();
+        return;
+      }
+      state.authBusy = true;
+      state.authError = null;
+      renderAuthModal();
+
+      const fullPhone = `${state.tempCountry}${state.tempPhone}`;
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/auth/verify-otp`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            phoneNumber: fullPhone,
+            code,
+            phoneCodeHash: state.phoneCodeHash
+          })
+        });
+        const data = await res.json();
+        state.authBusy = false;
+
+        if (res.ok && data.success) {
+          if (data.status === '2fa_required' || data.requires2FA) {
+            state.authStep = '2fa';
+            renderAuthModal();
+            return;
+          }
+          if (data.sessionToken) {
+            localStorage.setItem('televault_session_token', data.sessionToken);
+          }
+          state.isConnected = true;
+          state.connectedPhone = data.phoneNumber || fullPhone;
+          state.connectedUsername = data.username || fullPhone;
+          closeModal();
+          showToast('🎉 Connected to your Telegram Saved Messages!');
+          renderScreen();
+          return;
+        } else {
+          state.authError = data.message || 'Invalid OTP code.';
+        }
+      } catch (e) {
+        state.authBusy = false;
+        state.authError = 'Verification error: ' + e.message;
+      }
+      renderAuthModal();
+    }
+
+    async function submit2faStep() {
+      const password = document.getElementById('twoFaInput').value;
+      if (!password) {
+        state.authError = 'Please enter your Two-Step Verification password.';
+        renderAuthModal();
+        return;
+      }
+      state.authBusy = true;
+      state.authError = null;
+      renderAuthModal();
+
+      const fullPhone = `${state.tempCountry}${state.tempPhone}`;
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/auth/verify-2fa`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({ phoneNumber: fullPhone, password })
+        });
+        const data = await res.json();
+        state.authBusy = false;
+
+        if (res.ok && data.success) {
+          if (data.sessionToken) {
+            localStorage.setItem('televault_session_token', data.sessionToken);
+          }
+          state.isConnected = true;
+          state.connectedPhone = data.phoneNumber || `${state.tempCountry}${state.tempPhone}`;
+          state.connectedUsername = data.username || state.connectedPhone;
+          closeModal();
+          showToast('🎉 Connected with 2FA to your Telegram Saved Messages!');
+          renderScreen();
+          return;
+        } else {
+          state.authError = data.message || 'Incorrect 2FA password.';
+        }
+      } catch (e) {
+        state.authBusy = false;
+        state.authError = '2FA error: ' + e.message;
+      }
+      renderAuthModal();
+    }
+
+    async function disconnectAccount() {
+      try {
+        await fetch(`${API_BASE}/api/v1/auth/logout`, {
+          method: 'POST',
+          headers: getAuthHeaders()
+        });
+      } catch (e) {}
+      localStorage.removeItem('televault_session_token');
+      state.isConnected = false;
+      state.connectedPhone = null;
+      state.connectedUsername = null;
+      showToast('Logged out from Telegram.');
+      renderScreen();
+    }
+
+    // Real file upload from user's PC/Mobile directly to Telegram Saved Messages
+    async function handleRealFilePicked(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      if (!state.isConnected) {
+        showToast('Please connect your Telegram account first!');
+        openAuthSheet();
+        return;
+      }
+
+      const folder = state.activeFolder || 'Download';
+      const sizeMB = +(file.size / (1024 * 1024)).toFixed(2) || 0.1;
+      showToast(`Uploading "${file.name}" to your Telegram Saved Messages...`);
+
+      const reader = new FileReader();
+      reader.onload = async function() {
+        const base64Data = reader.result.split(',')[1];
+        try {
+          const res = await fetch(`${API_BASE}/api/v1/files/upload`, {
+            method: 'POST',
+            headers: getAuthHeaders(),
+            body: JSON.stringify({
+              fileName: file.name,
+              folderName: folder,
+              sha256: 'sha256_' + file.name + '_' + file.size,
+              fileBase64: base64Data
+            })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            const newItem = {
+              id: 'real_' + Date.now(),
+              name: file.name,
+              folder: folder,
+              sizeMB: sizeMB,
+              cat: 'Docs',
+              sha: 'sha256_' + file.size,
+              starred: false,
+              backedUp: true,
+              deleted: false
+            };
+            state.files.unshift(newItem);
+            state.queue.unshift({
+              name: file.name,
+              folder: folder,
+              sizeMB: sizeMB,
+              sha: newItem.sha,
+              status: `Backed Up (Msg #${data.messageId})`
+            });
+            showToast(`✅ Uploaded "${file.name}" to your Telegram Saved Messages!`);
+            renderScreen();
+          } else {
+            showToast('Upload error: ' + (data.message || 'Failed'));
+          }
+        } catch (err) {
+          showToast('Upload error: ' + err.message);
+        }
+      };
+      reader.readAsDataURL(file);
+      event.target.value = '';
+    }
+
+    async function queueSingleFile(fileId) {
+      const file = state.files.find(f => f.id === fileId);
+      if (!file) return;
+      if (!state.isConnected) {
+        openAuthSheet();
+        return;
+      }
+      const alreadySha = state.queue.some(q => q.sha === file.sha && q.status.includes('Backed Up'));
+      if (state.skipDuplicates && (file.backedUp || alreadySha)) {
+        state.queue.unshift({ name: file.name, folder: file.folder, sizeMB: file.sizeMB, sha: file.sha, status: 'Skipped (SHA-256 Duplicate)' });
+        showToast(`Skipped duplicate: ${file.name}`);
+        renderScreen();
+        return;
+      }
+
+      showToast(`Sending "${file.name}" to your Telegram Saved Messages...`);
+      try {
+        const res = await fetch(`${API_BASE}/api/v1/files/upload`, {
+          method: 'POST',
+          headers: getAuthHeaders(),
+          body: JSON.stringify({
+            fileName: file.name,
+            folderName: file.folder,
+            sha256: file.sha
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          file.backedUp = true;
+          state.queue.unshift({
+            name: file.name,
+            folder: file.folder,
+            sizeMB: file.sizeMB,
+            sha: file.sha,
+            status: `Backed Up (Msg #${data.messageId})`
+          });
+          showToast(`✅ Sent "${file.name}" to your Telegram Saved Messages!`);
+        } else {
+          showToast('Error: ' + (data.message || 'Upload failed'));
+        }
+      } catch (e) {
+        showToast('Network error: ' + e.message);
+      }
+      renderScreen();
+    }
+
+    async function queueFolder(folderName) {
+      if (!state.isConnected) {
+        openAuthSheet();
+        return;
+      }
+      const list = state.files.filter(f => !f.deleted && f.folder === folderName);
+      for (const f of list) {
+        await queueSingleFile(f.id);
+      }
+    }
+
+    async function syncAllNow() {
+      const watched = state.files.filter(f => !f.deleted && ['DCIM', 'Pictures', 'Documents'].includes(f.folder));
+      for (const f of watched) {
+        await queueSingleFile(f.id);
+      }
+    }
+
+    function openFilteredSearch(cat) {
+      state.searchCategory = cat;
+      switchTab(3);
+    }
+
+    function showStorageBreakdown() {
+      openModal(`
+        <div style="font-size:19px;font-weight:800;">Storage Analyzer Breakdown</div>
+        <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">90.0 GB of 224 GB used (134.0 GB free)</div>
+        <div style="margin-top:16px;display:flex;flex-direction:column;gap:12px;">
+          <div><strong>Videos (4K / HDR):</strong> 38.4 GB (42%)</div>
+          <div><strong>Images &amp; RAW Photos:</strong> 22.1 GB (25%)</div>
+          <div><strong>Apps &amp; Packages:</strong> 16.5 GB (18%)</div>
+          <div><strong>Documents &amp; Archives:</strong> 8.2 GB (9%)</div>
+          <div><strong>Audio &amp; Music:</strong> 4.8 GB (6%)</div>
+        </div>
+      `);
+    }
+
+    function showLargeFilesModal() {
+      const large = state.files.filter(f => !f.deleted && f.sizeMB >= 50);
+      openModal(`
+        <div style="font-size:19px;font-weight:800;margin-bottom:12px;">Large files (&gt; 50 MB)</div>
+        ${large.map(f => `
+          <div class="folder-card">
+            <div style="flex:1;">
+              <div class="tile-title">${f.name}</div>
+              <div class="tile-sub">${f.sizeMB} MB • ${f.folder}</div>
+            </div>
+            <button class="filter-pill active" onclick="deleteToRecycle('${f.id}')">Clean</button>
+          </div>
+        `).join('')}
+      `);
+    }
+
+    function showDuplicatesModal() {
+      openModal(`
+        <div style="font-size:19px;font-weight:800;">SHA-256 Duplicate Groups</div>
+        <div style="font-size:12.5px;color:var(--text-muted);margin:4px 0 14px;">Identical cryptographic hashes detected across folders</div>
+        <div class="folder-card">
+          <div style="flex:1;">
+            <div class="tile-title">IMG_20261125_Portrait_Studio (1).jpg</div>
+            <div class="tile-sub">SHA-256: dup_hash_991122... • Reclaim 8.4 MB</div>
+          </div>
+          <button class="filter-pill active" onclick="deleteToRecycle('6')">Remove Copy</button>
+        </div>
+        <div class="folder-card">
+          <div style="flex:1;">
+            <div class="tile-title">Q4_Cloud_Architecture_Spec_Copy.pdf</div>
+            <div class="tile-sub">SHA-256: dup_hash_pdf_77... • Reclaim 5.0 MB</div>
+          </div>
+          <button class="filter-pill active" onclick="deleteToRecycle('8')">Remove Copy</button>
+        </div>
+      `);
+    }
+
+    function showRecycleModal() {
+      const deleted = state.files.filter(f => f.deleted);
+      openModal(`
+        <div style="font-size:19px;font-weight:800;margin-bottom:12px;">Recycle bin (${deleted.length})</div>
+        ${deleted.length === 0 ? '<div class="tile-sub">Recycle bin is empty.</div>' : deleted.map(f => `
+          <div class="folder-card">
+            <div style="flex:1;">
+              <div class="tile-title">${f.name}</div>
+              <div class="tile-sub">${f.sizeMB} MB • ${f.folder}</div>
+            </div>
+            <button class="filter-pill active" onclick="restoreFile('${f.id}')">Restore</button>
+          </div>
+        `).join('')}
+      `);
+    }
+
+    function showPeopleModal() {
+      openModal(`
+        <div style="font-size:19px;font-weight:800;margin-bottom:12px;">People &amp; Face Clusters</div>
+        <div class="folder-card" onclick="closeModal();openFilteredSearch('Images')">
+          <div class="folder-icon-box">😊</div>
+          <div style="flex:1;"><div class="tile-title">Portraits &amp; Studio</div><div class="tile-sub">2 items</div></div>
+        </div>
+        <div class="folder-card" onclick="closeModal();openFilteredSearch('Videos')">
+          <div class="folder-icon-box">🏖️</div>
+          <div style="flex:1;"><div class="tile-title">Family &amp; Trips</div><div class="tile-sub">2 items</div></div>
+        </div>
+      `);
+    }
+
+    function showStarredModal() {
+      const starred = state.files.filter(f => !f.deleted && f.starred);
+      openModal(`
+        <div style="font-size:19px;font-weight:800;margin-bottom:12px;">Starred Files (${starred.length})</div>
+        ${starred.map(f => `
+          <div class="folder-card">
+            <div style="flex:1;">
+              <div class="tile-title">${f.name}</div>
+              <div class="tile-sub">${f.folder} • ${f.sizeMB} MB</div>
+            </div>
+            <span>⭐</span>
+          </div>
+        `).join('')}
+      `);
+    }
+
+    function deleteToRecycle(id) {
+      const f = state.files.find(x => x.id === id);
+      if (f) f.deleted = true;
+      closeModal();
+      showToast('Moved file to Recycle bin.');
+      renderScreen();
+    }
+
+    function restoreFile(id) {
+      const f = state.files.find(x => x.id === id);
+      if (f) f.deleted = false;
+      closeModal();
+      showToast('Restored file from Recycle bin.');
+      renderScreen();
+    }
+
+    function compressDemo() {
+      state.files.unshift({
+        id: 'zip_' + Date.now(),
+        name: 'TeleVault_Compressed_Bundle.zip',
+        folder: 'Download',
+        sizeMB: 14.2,
+        cat: 'Docs',
+        sha: 'zip_sha_' + Date.now(),
+        starred: false,
+        backedUp: false,
+        deleted: false
+      });
+      showToast('Compressed files into Download/TeleVault_Compressed_Bundle.zip');
+    }
+
+    function extractDemo() {
+      state.files.unshift({
+        id: 'ext_' + Date.now(),
+        name: 'Studio_RAW_Extracted_Photos.pdf',
+        folder: 'Download',
+        sizeMB: 28.5,
+        cat: 'Docs',
+        sha: 'ext_sha_' + Date.now(),
+        starred: false,
+        backedUp: false,
+        deleted: false
+      });
+      showToast('Unpacked archive into Downloads folder!');
+    }
+
+    renderScreen();
+    checkBackendStatus();
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/preview/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>

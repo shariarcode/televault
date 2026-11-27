@@ -1,0 +1,21 @@
+# Build and output directories
+build/
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+
+# Environment & Secrets (NEVER commit real secrets)
+.env
+*.session
+*.key
+backend/.*.json
+backend/temp_uploads/
+
+# IDE & OS files
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+

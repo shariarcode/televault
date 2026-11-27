@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: televault-multiuser-bridge
+    runtime: docker
+    plan: free
+    envVars:
+      - key: PORT
+        value: 8765
+      - key: TELEGRAM_API_ID
+        sync: false
+      - key: TELEGRAM_API_HASH
+        sync: false
+

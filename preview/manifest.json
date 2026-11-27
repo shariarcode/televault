@@ -1,0 +1,20 @@
+{
+  "name": "TeleVault — Personal Cloud Drive",
+  "short_name": "TeleVault",
+  "description": "Personal file & photo manager with private backup to your own Telegram Saved Messages.",
+  "start_url": "/preview/index.html",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F3F2EE",
+  "theme_color": "#F3F2EE",
+  "icons": [
+    {
+      "src": "/preview/icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+

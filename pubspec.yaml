@@ -1,0 +1,62 @@
+name: televault
+description: TeleVault — Personal file & photo manager with encrypted Telegram Cloud backup via configurable MTProto bridge.
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.2.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management: Reactive, compile-safe dependency injection & state providers
+  flutter_riverpod: ^2.5.1
+
+  # Local Database: SQLite persistence for file indexing, upload history, SHA-256 deduplication, and recycle bin tracking
+  sqflite: ^2.3.3+1
+  path: ^1.9.0
+
+  # Secure Storage: Hardware-backed Keystore (Android) / Keychain (iOS) for auth tokens, session references, and bridge configs
+  flutter_secure_storage: ^9.2.2
+
+  # Device Media & File System Access:
+  # - photo_manager: Native Android/iOS photo & video gallery indexing without copying files
+  # - file_picker: Native document and folder selection
+  # - path_provider: Standard OS directory resolution (Downloads, Documents, Temporary)
+  # - permission_handler: Granular runtime permission checks for Android 13+ Media & Scoped Storage / iOS Photo Library
+  photo_manager: ^3.2.0
+  file_picker: ^8.0.5
+  path_provider: ^2.1.3
+  permission_handler: ^11.3.1
+
+  # Network & Connectivity:
+  # - http: REST/Bridge communication with configurable MTProto Telegram client bridge
+  # - connectivity_plus: Real-time Wi-Fi vs cellular detection for "Wi-Fi only" auto-backup rules
+  http: ^1.2.1
+  connectivity_plus: ^6.0.3
+
+  # Cryptography & Archiving:
+  # - crypto: Streamed SHA-256 file hashing for duplicate file detection and preventing redundant Telegram uploads
+  # - archive: Zip compression and archive extraction (zip, tar, gz) for File Utilities
+  crypto: ^3.0.3
+  archive: ^3.6.1
+
+  # Environment & Formatting Utilities:
+  # - flutter_dotenv: Safe runtime loading of .env configuration (never hardcode api_id / api_hash)
+  # - intl: Human-readable date, time, and metric formatting
+  # - uuid: Unique IDs for upload queue tasks and recycle bin entries
+  flutter_dotenv: ^5.1.0
+  intl: ^0.19.0
+  uuid: ^4.4.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - .env.example
+
