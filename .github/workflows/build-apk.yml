@@ -42,7 +42,7 @@ jobs:
             sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "1.9.24"/g' android/settings.gradle
           fi
           if [ -f android/gradle/wrapper/gradle-wrapper.properties ]; then
-            sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.5-all.zip|g' android/gradle/wrapper/gradle-wrapper.properties
+            sed -i 's|distributionUrl=.*|distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip|g' android/gradle/wrapper/gradle-wrapper.properties
           fi
           if [ -f android/app/build.gradle ]; then
             sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/g' android/app/build.gradle
