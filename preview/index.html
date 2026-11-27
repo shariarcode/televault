@@ -759,6 +759,9 @@
           }
           currentUiVersion = data.uiVersion;
         }
+        if (data.sessionToken && !localStorage.getItem('televault_session_token')) {
+          localStorage.setItem('televault_session_token', data.sessionToken);
+        }
         state.hasApiCredentials = !!data.hasApiCredentials;
         state.apiId = data.apiId || '';
         state.isConnected = !!data.isAuthenticated;
@@ -1550,11 +1553,11 @@
           headers: getAuthHeaders()
         });
       } catch (e) {}
-      localStorage.removeItem('televault_session_token');
+      localStorage.setItem('televault_session_token', 'new_user');
       state.isConnected = false;
       state.connectedPhone = null;
       state.connectedUsername = null;
-      showToast('Logged out from Telegram.');
+      showToast('Logged out from Telegram. Anyone can now log in with their own number!');
       renderScreen();
     }
 

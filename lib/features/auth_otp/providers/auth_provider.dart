@@ -35,7 +35,7 @@ class AuthState {
     this.phoneCodeHash,
     this.connectedPhone,
     this.connectedUsername,
-    this.bridgeUrl = 'http://localhost:8765',
+    this.bridgeUrl = 'https://6356987952c58d.app.lhr.life',
     this.isDemoMode = false,
     this.isLoading = false,
     this.resendSecondsRemaining = 0,

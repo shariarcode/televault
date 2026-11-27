@@ -45,7 +45,7 @@ class TelegramBridgeClient {
   Future<String> _resolveBaseUrl() async {
     final stored = await _secureStorage.getBridgeUrl();
     if (stored != null && stored.isNotEmpty) return stored;
-    return 'http://localhost:8765';
+    return 'https://6356987952c58d.app.lhr.life';
   }
 
   /// Computes a SHA-256 hash of a file on disk, or falls back to a deterministic

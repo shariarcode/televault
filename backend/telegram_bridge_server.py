@@ -140,15 +140,19 @@ class MultiUserTeleVaultBridge:
             cleaned = "+" + cleaned
         return cleaned
 
-    def _resolve_user_record(self, bearer_token: str | None) -> tuple[str | None, dict | None]:
+    def _resolve_user_record(self, bearer_token: str | None, is_local_pc: bool = False) -> tuple[str | None, dict | None]:
+        if bearer_token == "new_user":
+            return None, None
         if bearer_token and bearer_token in self.user_sessions:
             return bearer_token, self.user_sessions[bearer_token]
-        if self.default_token and self.default_token in self.user_sessions:
+        # Only auto-restore default owner session on local PC localhost;
+        # Every new phone / remote user MUST log in with their own phone number + OTP!
+        if is_local_pc and not bearer_token and self.default_token and self.default_token in self.user_sessions:
             return self.default_token, self.user_sessions[self.default_token]
         return None, None
 
-    async def get_status(self, bearer_token: str | None = None) -> dict:
-        token, record = self._resolve_user_record(bearer_token)
+    async def get_status(self, bearer_token: str | None = None, is_local_pc: bool = False) -> dict:
+        token, record = self._resolve_user_record(bearer_token, is_local_pc=is_local_pc)
         is_authorized = False
         phone_number = None
         username = None
@@ -500,7 +504,9 @@ async def route_api_request(writer, method: str, path: str, headers: dict, body_
             payload = json.loads(body_bytes.decode("utf-8", errors="ignore"))
 
         if path == "/api/v1/auth/status" and method == "GET":
-            status = await bridge.get_status(bearer_token)
+            host_hdr = headers.get("host", "")
+            is_local = (host_hdr.startswith("localhost") or host_hdr.startswith("127.0.0.1")) and not headers.get("x-forwarded-for")
+            status = await bridge.get_status(bearer_token, is_local_pc=is_local)
             ui_file = ROOT_DIR / "preview" / "index.html"
             status["uiVersion"] = int(ui_file.stat().st_mtime_ns) if ui_file.exists() else 0
             await send_json_response(writer, 200, status)
