@@ -281,35 +281,40 @@ class TelegramBridgeClient {
 
     final baseUrl = await _resolveBaseUrl();
     final uri = Uri.parse('$baseUrl/api/v1/files/upload');
-    final request = http.MultipartRequest('POST', uri)
-      ..headers['Authorization'] = 'Bearer $sessionToken'
-      ..fields['folderName'] = folderName
-      ..fields['sha256'] = sha256Hash
-      ..fields['targetChat'] = 'me';
 
+    onProgress(0.20);
+    String? base64Payload;
     final file = File(filePath);
     if (await file.exists()) {
-      request.files.add(await http.MultipartFile.fromPath('file', filePath));
-    } else {
-      request.files.add(
-        http.MultipartFile.fromBytes(
-          'file',
-          utf8.encode('TeleVault virtual payload: $fileName'),
-          filename: fileName,
-        ),
-      );
+      final bytes = await file.readAsBytes();
+      base64Payload = base64Encode(bytes);
     }
 
-    onProgress(0.35);
-    final streamed = await request.send().timeout(const Duration(minutes: 5));
-    onProgress(0.9);
-    final response = await http.Response.fromStream(streamed);
+    onProgress(0.55);
+    final response = await _httpClient
+        .post(
+          uri,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $sessionToken',
+          },
+          body: jsonEncode({
+            'fileName': fileName,
+            'folderName': folderName,
+            'sha256': sha256Hash,
+            'targetChat': 'me',
+            if (base64Payload != null) 'fileBase64': base64Payload,
+          }),
+        )
+        .timeout(const Duration(minutes: 5));
+
+    onProgress(0.95);
     if (response.statusCode == 200 || response.statusCode == 201) {
       onProgress(1.0);
       final data = jsonDecode(response.body) as Map<String, dynamic>;
       return (data['messageId']?.toString()) ?? 'tg_msg_uploaded';
     }
-    throw Exception('Bridge upload failed (HTTP ${response.statusCode})');
+    throw Exception('Bridge upload failed (HTTP ${response.statusCode}): ${response.body}');
   }
 
   /// Safely terminates the remote session and clears local hardware-backed storage.

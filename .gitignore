@@ -12,6 +12,8 @@ build/
 backend/.*.json
 backend/temp_uploads/
 .git-helpers/
+*.apk
+*.zip
 
 # IDE & OS files
 .idea/

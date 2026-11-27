@@ -4,6 +4,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:photo_manager/photo_manager.dart';
 import 'package:uuid/uuid.dart';
 import '../../../core/constants/app_constants.dart';
 import '../../../core/database/local_database.dart';
@@ -139,7 +140,10 @@ class FilesNotifier extends StateNotifier<FilesState> {
   Future<void> refreshFiles() async {
     state = state.copyWith(isLoading: true);
     await LocalDatabase.instance.ensureSeeded();
-    await PermissionService.requestMediaAndStoragePermissions();
+    final hasPerm = await PermissionService.requestMediaAndStoragePermissions();
+    if (hasPerm) {
+      await _scanRealDeviceGalleryAndWhatsApp();
+    }
 
     final all = await LocalDatabase.instance.getAllFiles(includeDeleted: true);
     final active = all.where((f) => !f.isDeleted).toList();
@@ -182,6 +186,65 @@ class FilesNotifier extends StateNotifier<FilesState> {
       deletedFiles: deleted,
       isLoading: false,
     );
+  }
+
+  /// Automatically scans real device photo/video albums (including WhatsApp Images,
+  /// Camera/DCIM, Screenshots, Pictures, and Downloads) via `PhotoManager` on Android/iOS.
+  Future<void> _scanRealDeviceGalleryAndWhatsApp() async {
+    try {
+      final albums = await PhotoManager.getAssetPathList(
+        type: RequestType.common,
+        onlyAll: false,
+      );
+
+      for (final album in albums) {
+        final albumNameLower = album.name.toLowerCase();
+        String targetFolder = 'Pictures';
+        if (albumNameLower.contains('whatsapp')) {
+          targetFolder = 'WhatsApp Images';
+        } else if (albumNameLower.contains('camera') ||
+            albumNameLower.contains('dcim')) {
+          targetFolder = 'DCIM';
+        } else if (albumNameLower.contains('download')) {
+          targetFolder = 'Download';
+        } else if (albumNameLower.contains('movie') ||
+            albumNameLower.contains('video')) {
+          targetFolder = 'Movies';
+        }
+
+        final assets = await album.getAssetListPaged(page: 0, size: 25);
+        for (final asset in assets) {
+          final file = await asset.file;
+          if (file == null || !await file.exists()) continue;
+
+          final stat = await file.stat();
+          final fileName = p.basename(file.path);
+          final hash = await TelegramBridgeClient.computeFileSha256(
+            filePath: file.path,
+            fileName: fileName,
+            sizeBytes: stat.size,
+          );
+
+          final item = VaultFileItem(
+            id: 'media_${asset.id}',
+            name: fileName,
+            path: file.path,
+            folderName: targetFolder,
+            sizeBytes: stat.size,
+            modifiedAt: asset.modifiedDateTime,
+            category: asset.type == AssetType.video
+                ? FileCategory.videos
+                : FileCategory.images,
+            sha256Hash: hash,
+            peopleGroup:
+                targetFolder == 'WhatsApp Images' ? 'WhatsApp Media' : null,
+          );
+          await LocalDatabase.instance.upsertFile(item);
+        }
+      }
+    } catch (_) {
+      // Safe fallback when running on desktop/simulator
+    }
   }
 
   void _sortFolders(List<DeviceFolderItem> list, FilesSortMode mode) {

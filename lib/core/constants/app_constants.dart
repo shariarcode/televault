@@ -20,8 +20,9 @@ class AppConstants {
   static const String keySkipDuplicatesEnabled = 'televault_skip_duplicates_enabled';
   static const String keySelectedAlbums = 'televault_selected_albums';
 
-  // Default Internal Storage Folders (matching reference Android file hierarchy)
+  // Default Internal Storage Folders (matching reference Android file hierarchy + WhatsApp Images)
   static const List<String> defaultInternalFolders = [
+    'WhatsApp Images',
     'Android',
     'DCIM',
     'Documents',

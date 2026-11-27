@@ -680,8 +680,8 @@
     </div>
   </div>
 
-  <!-- Hidden real file input so user can pick actual files from PC/Mobile to upload to Telegram -->
-  <input type="file" id="realFilePicker" style="display:none" onchange="handleRealFilePicked(event)" />
+  <!-- Hidden real file input so user can pick multiple actual files/WhatsApp photos from PC/Mobile to upload to Telegram -->
+  <input type="file" id="realFilePicker" multiple accept="image/*,video/*,audio/*,*/*" style="display:none" onchange="handleRealFilePicked(event)" />
 
   <script>
     const API_BASE = window.location.origin.startsWith('http')
@@ -708,6 +708,7 @@
       wifiOnly: true,
       skipDuplicates: true,
       folders: [
+        { name: 'WhatsApp Images', date: 'Nov 27, 2026' },
         { name: 'Android', date: 'Jul 16, 2026' },
         { name: 'DCIM', date: 'Nov 25, 2026' },
         { name: 'Documents', date: 'Oct 28, 2026' },
@@ -1561,65 +1562,72 @@
       renderScreen();
     }
 
-    // Real file upload from user's PC/Mobile directly to Telegram Saved Messages
+    // Real file upload (supports single or multiple WhatsApp photos/videos/files) directly to Telegram Saved Messages
     async function handleRealFilePicked(event) {
-      const file = event.target.files[0];
-      if (!file) return;
+      const pickedFiles = Array.from(event.target.files || []);
+      if (!pickedFiles.length) return;
       if (!state.isConnected) {
         showToast('Please connect your Telegram account first!');
         openAuthSheet();
         return;
       }
 
-      const folder = state.activeFolder || 'Download';
-      const sizeMB = +(file.size / (1024 * 1024)).toFixed(2) || 0.1;
-      showToast(`Uploading "${file.name}" to your Telegram Saved Messages...`);
+      const folder = state.activeFolder || 'WhatsApp Images';
+      for (const file of pickedFiles) {
+        const sizeMB = +(file.size / (1024 * 1024)).toFixed(2) || 0.1;
+        showToast(`Uploading "${file.name}" to your Telegram Saved Messages...`);
 
-      const reader = new FileReader();
-      reader.onload = async function() {
-        const base64Data = reader.result.split(',')[1];
-        try {
-          const res = await fetch(`${API_BASE}/api/v1/files/upload`, {
-            method: 'POST',
-            headers: getAuthHeaders(),
-            body: JSON.stringify({
-              fileName: file.name,
-              folderName: folder,
-              sha256: 'sha256_' + file.name + '_' + file.size,
-              fileBase64: base64Data
-            })
-          });
-          const data = await res.json();
-          if (res.ok && data.success) {
-            const newItem = {
-              id: 'real_' + Date.now(),
-              name: file.name,
-              folder: folder,
-              sizeMB: sizeMB,
-              cat: 'Docs',
-              sha: 'sha256_' + file.size,
-              starred: false,
-              backedUp: true,
-              deleted: false
-            };
-            state.files.unshift(newItem);
-            state.queue.unshift({
-              name: file.name,
-              folder: folder,
-              sizeMB: sizeMB,
-              sha: newItem.sha,
-              status: `Backed Up (Msg #${data.messageId})`
-            });
-            showToast(`✅ Uploaded "${file.name}" to your Telegram Saved Messages!`);
-            renderScreen();
-          } else {
-            showToast('Upload error: ' + (data.message || 'Failed'));
-          }
-        } catch (err) {
-          showToast('Upload error: ' + err.message);
-        }
-      };
-      reader.readAsDataURL(file);
+        await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = async function() {
+            const base64Data = reader.result.split(',')[1];
+            try {
+              const res = await fetch(`${API_BASE}/api/v1/files/upload`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify({
+                  fileName: file.name,
+                  folderName: folder,
+                  sha256: 'sha256_' + file.name + '_' + file.size,
+                  fileBase64: base64Data
+                })
+              });
+              const data = await res.json();
+              if (res.ok && data.success) {
+                const isImg = file.type && file.type.startsWith('image/');
+                const isVid = file.type && file.type.startsWith('video/');
+                const newItem = {
+                  id: 'real_' + Date.now() + '_' + Math.random(),
+                  name: file.name,
+                  folder: folder,
+                  sizeMB: sizeMB,
+                  cat: isImg ? 'Images' : (isVid ? 'Videos' : 'Docs'),
+                  sha: 'sha256_' + file.name + '_' + file.size,
+                  starred: false,
+                  backedUp: true,
+                  deleted: false
+                };
+                state.files.unshift(newItem);
+                state.queue.unshift({
+                  name: file.name,
+                  folder: folder,
+                  sizeMB: sizeMB,
+                  sha: newItem.sha,
+                  status: `Backed Up (Msg #${data.messageId})`
+                });
+                showToast(`✅ Uploaded "${file.name}" to your Telegram Saved Messages!`);
+                renderScreen();
+              } else {
+                showToast('Upload error: ' + (data.message || 'Failed'));
+              }
+            } catch (err) {
+              showToast('Upload error: ' + err.message);
+            }
+            resolve();
+          };
+          reader.readAsDataURL(file);
+        });
+      }
       event.target.value = '';
     }
 
