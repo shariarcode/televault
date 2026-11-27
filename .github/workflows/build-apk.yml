@@ -34,6 +34,21 @@ jobs:
           flutter create --project-name televault .
           rm -rf test/widget_test.dart
 
+      - name: Upgrade Kotlin Gradle Plugin to 1.9.24 & CompileSdk 34
+        run: |
+          if [ -f android/settings.gradle ]; then
+            sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "1.9.24"/g' android/settings.gradle
+          fi
+          if [ -f android/build.gradle ]; then
+            sed -i "s/ext.kotlin_version = '[^']*'/ext.kotlin_version = '1.9.24'/g" android/build.gradle
+          fi
+          if [ -f android/app/build.gradle ]; then
+            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 34/g' android/app/build.gradle
+            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/g' android/app/build.gradle
+            sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/g' android/app/build.gradle
+            sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' android/app/build.gradle
+          fi
+
       - name: Restore custom AndroidManifest & Info.plist
         run: |
           cp /tmp/AndroidManifest.xml.bak android/app/src/main/AndroidManifest.xml
