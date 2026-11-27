@@ -616,7 +616,7 @@ class _ConnectedCloudHub extends ConsumerWidget {
             ),
             child: const Column(
               children: [
-                Icon(Icons.cloud_Queue_rounded,
+                Icon(Icons.cloud_queue_rounded,
                     size: 36, color: AppTheme.textMuted),
                 SizedBox(height: 10),
                 Text(
