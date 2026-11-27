@@ -24,8 +24,18 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
 
+      - name: Backup custom AndroidManifest & Info.plist
+        run: |
+          cp android/app/src/main/AndroidManifest.xml /tmp/AndroidManifest.xml.bak
+          cp ios/Runner/Info.plist /tmp/Info.plist.bak
+
       - name: Generate missing platform wrapper files
         run: flutter create --project-name televault .
+
+      - name: Restore custom AndroidManifest & Info.plist
+        run: |
+          cp /tmp/AndroidManifest.xml.bak android/app/src/main/AndroidManifest.xml
+          cp /tmp/Info.plist.bak ios/Runner/Info.plist
 
       - name: Install Flutter dependencies
         run: flutter pub get
