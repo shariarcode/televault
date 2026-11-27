@@ -35,7 +35,7 @@ jobs:
           flutter create --project-name televault .
           rm -rf test/widget_test.dart
 
-      - name: Configure AGP 8.3.2, Gradle 8.5, Kotlin 1.9.24 & CompileSdk 35
+      - name: Configure AGP 8.3.2, Gradle 8.5, Kotlin 1.9.24 & CompileSdk 36
         run: |
           if [ -f android/settings.gradle ]; then
             sed -i 's/id "com.android.application" version "[^"]*"/id "com.android.application" version "8.3.2"/g' android/settings.gradle
@@ -45,8 +45,8 @@ jobs:
             sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.5-all.zip|g' android/gradle/wrapper/gradle-wrapper.properties
           fi
           if [ -f android/app/build.gradle ]; then
-            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/g' android/app/build.gradle
-            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 35/g' android/app/build.gradle
+            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 36/g' android/app/build.gradle
+            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 36/g' android/app/build.gradle
             sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/g' android/app/build.gradle
             sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' android/app/build.gradle
             sed -i 's/targetSdk = flutter.targetSdkVersion/targetSdk = 35/g' android/app/build.gradle
@@ -54,27 +54,10 @@ jobs:
           cat << 'EOF' >> android/build.gradle
 
           subprojects {
-              afterEvaluate { project ->
-                  if (project.hasProperty("android")) {
-                      project.android {
-                          compileSdkVersion 35
-                      }
+              tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                  kotlinOptions {
+                      freeCompilerArgs += ["-Xskip-metadata-version-check"]
                   }
-                  project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-                      kotlinOptions {
-                          jvmTarget = "17"
-                          freeCompilerArgs += ["-Xskip-metadata-version-check"]
-                      }
-                  }
-              }
-          }
-          EOF
-          cat << 'EOF' >> android/app/build.gradle
-
-          tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
-              kotlinOptions {
-                  jvmTarget = "17"
-                  freeCompilerArgs += ["-Xskip-metadata-version-check"]
               }
           }
           EOF
