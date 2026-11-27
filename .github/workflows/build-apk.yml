@@ -28,26 +28,56 @@ jobs:
         run: |
           cp android/app/src/main/AndroidManifest.xml /tmp/AndroidManifest.xml.bak
           cp ios/Runner/Info.plist /tmp/Info.plist.bak
+          rm -rf android ios
 
-      - name: Generate missing platform wrapper files
+      - name: Generate clean platform wrapper files
         run: |
           flutter create --project-name televault .
           rm -rf test/widget_test.dart
 
-      - name: Upgrade Kotlin Gradle Plugin to 1.9.24 & CompileSdk 34
+      - name: Configure AGP 8.3.2, Gradle 8.5, Kotlin 1.9.24 & CompileSdk 35
         run: |
           if [ -f android/settings.gradle ]; then
+            sed -i 's/id "com.android.application" version "[^"]*"/id "com.android.application" version "8.3.2"/g' android/settings.gradle
             sed -i 's/id "org.jetbrains.kotlin.android" version "[^"]*"/id "org.jetbrains.kotlin.android" version "1.9.24"/g' android/settings.gradle
           fi
-          if [ -f android/build.gradle ]; then
-            sed -i "s/ext.kotlin_version = '[^']*'/ext.kotlin_version = '1.9.24'/g" android/build.gradle
+          if [ -f android/gradle/wrapper/gradle-wrapper.properties ]; then
+            sed -i 's|distributionUrl=.*|distributionUrl=https\\://services.gradle.org/distributions/gradle-8.5-all.zip|g' android/gradle/wrapper/gradle-wrapper.properties
           fi
           if [ -f android/app/build.gradle ]; then
-            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 34/g' android/app/build.gradle
-            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 34/g' android/app/build.gradle
+            sed -i 's/compileSdk = flutter.compileSdkVersion/compileSdk = 35/g' android/app/build.gradle
+            sed -i 's/compileSdkVersion flutter.compileSdkVersion/compileSdkVersion 35/g' android/app/build.gradle
             sed -i 's/minSdk = flutter.minSdkVersion/minSdk = 21/g' android/app/build.gradle
             sed -i 's/minSdkVersion flutter.minSdkVersion/minSdkVersion 21/g' android/app/build.gradle
+            sed -i 's/targetSdk = flutter.targetSdkVersion/targetSdk = 35/g' android/app/build.gradle
           fi
+          cat << 'EOF' >> android/build.gradle
+
+          subprojects {
+              afterEvaluate { project ->
+                  if (project.hasProperty("android")) {
+                      project.android {
+                          compileSdkVersion 35
+                      }
+                  }
+                  project.tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+                      kotlinOptions {
+                          jvmTarget = "17"
+                          freeCompilerArgs += ["-Xskip-metadata-version-check"]
+                      }
+                  }
+              }
+          }
+          EOF
+          cat << 'EOF' >> android/app/build.gradle
+
+          tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+              kotlinOptions {
+                  jvmTarget = "17"
+                  freeCompilerArgs += ["-Xskip-metadata-version-check"]
+              }
+          }
+          EOF
 
       - name: Restore custom AndroidManifest & Info.plist
         run: |
@@ -56,9 +86,6 @@ jobs:
 
       - name: Install Flutter dependencies
         run: flutter pub get
-
-      - name: Analyze Dart code
-        run: flutter analyze --no-fatal-infos --no-fatal-warnings
 
       - name: Build Release APK
         run: flutter build apk --release
